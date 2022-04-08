@@ -1,0 +1,130 @@
+﻿@{
+    ViewData["Title"] = "Quiz";
+}
+
+
+@section scripts
+{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    
+    <script type="text/javascript">
+        $("#ref1Img").on('click', function(e)
+        {
+            e.preventDefault()
+            $("#ref1Img").css('width', '120%')
+            $("#ref2Img").hide()
+        })
+        
+        $("#ref2Img").on('click', function(e)
+        {
+            e.preventDefault()
+            $("#ref2Img").css('width', '120%')
+            $("#ref1Img").hide()
+        })
+
+        $("#btnReset").on('click', function(e)
+        {
+            e.preventDefault()
+            $("#ResultPanel").html('')
+            $("#ref1Img").css('width', '100%')
+            $("#ref2Img").css('width', '100%')
+            $("#ref1Img").show()
+            $("#ref2Img").show()
+        })
+
+        $('#btnHit').on('click', function(e){
+            if($("#ref1Img")[0].style.display === 'none'  && $("#ref2Img")[0].style.display === '')
+            {
+                $("#ResultPanel").html('')
+                $("#ResultPanel").html('Hit')
+            }   
+            else if($("#ref1Img")[0].style.display === ''  && $("#ref2Img")[0].style.display === 'none')
+            {
+                $("#ResultPanel").html('')
+                $("#ResultPanel").html('Wrong')
+            }   
+            else if($("#ref1Img")[0].style.display === ''  && $("#ref2Img")[0].style.display === '')
+            {
+                $("#ResultPanel").html('')
+                $("#ResultPanel").html('not selected')
+            }
+        })
+        $('#btnPrevPage').on('click', function(e){
+            e.preventDefault()
+            current_width = get_currentprogressBar_value()
+            if(current_width >= 0)
+                new_width = parseInt(current_width) - 1
+            else 
+                new_width = 0
+
+           updateProgressBar(new_width)
+        })
+
+        $('#btnNextPage').on('click', function(e){
+            e.preventDefault()
+            current_width =  get_currentprogressBar_value()
+            if(current_width < 100)
+                new_width = parseInt(current_width) + 1
+            else 
+                new_width = 0
+
+            updateProgressBar(new_width)
+
+        })
+
+        function get_currentprogressBar_value()
+        {
+            return $('.progress-bar').attr('aria-valuenow')
+        }
+
+        function updateProgressBar(value)
+        {
+            $("#progressBar").html(value+'%')
+            $("#progressBar")[0].value = value
+            $('.progress-bar').attr('aria-valuenow', value)
+            $("#progressBar")[0].style.width = value + '%'
+        }
+    </script>    
+}
+
+
+<body>
+
+<div class="row" style="margin-bottom:50px">
+    <div class="progress" style="height:50px; width:100%">
+      <div class="progress-bar" id="progressBar" title="Progress" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">55%</div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-6">
+        <img src="img/ref1.PNG" id="ref1Img" style="width:100%"/>
+    </div>
+    <div class="col-6">
+        <img src="img/ref2.PNG" id="ref2Img" style="width:100%"/>
+    </div>
+</div>
+    <div class="row" style="justify-content:center">
+        <p id="ResultPanel" style="background-color:powderblue; font-size:300%;"></p>
+    </div>
+    <div class="row" style="margin-top:100px; margin-bottom:100px; justify-content:center; height:100px">
+        <div class="col-3" style="text-align:center; height:auto">
+            <a id="btnReset" style="text-align:center; height:auto" ><i title="Reset" class="fa fa-solid fa-refresh" style="font-size:100px" aria-hidden="true"></i></a>
+        </div>
+        <div class="col-3" style="text-align:center; height:auto" > 
+            <a id="btnHit" style="text-align:center; height:auto" ><i title="Answer" class="fa fa-solid fa-check" style="font-size:100px" aria-hidden="true"></i></a>
+        </div>
+    </div>
+    
+    <div class="row" style="justify-content:center">
+        <div class="col-6" style="text-align:center; height:auto">
+            <a id="btnPrevPage" ><i title="Previous" class="fa fa-solid fa-angle-left" style="font-size:100px" aria-hidden="true"></i></a>
+        </div>
+        <div class="col-6 " style="text-align:center; height:100px" > 
+            <a id="btnNextPage" class="btn "  aria-label="Settings"><i title="Next" class="fa fa-solid fa-angle-right" style="font-size:100px"></i></a>
+        </div>
+    </div>
+    
+</body>
+

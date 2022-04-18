@@ -3,10 +3,20 @@
 }
 
 
+    <style>
+        .dzsap-sticktobottom .dzsap-sticktobottom-for-skin-wave{
+        bottom: 0;
+        opacity: 1;
+     }
+    </style>    
+    
+
+
 @section scripts
 {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+
     
     <script type="text/javascript">
         $("#ref1Img").on('click', function(e)
@@ -85,6 +95,24 @@
             $('.progress-bar').attr('aria-valuenow', value)
             $("#progressBar")[0].style.width = value + '%'
         }
+
+
+        var wavesurfer = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: 'blue',
+            progressColor: 'red'
+        });
+
+        wavesurfer.load('../audio/heartbeat-01a.mp3');
+
+        $('#btnPlay').on('click', function () {
+            wavesurfer.play();
+        });
+
+        $('#btnStop').on('click', function () {
+            wavesurfer.load('../audio/heartbeat-01a.mp3');
+        });
+
     </script>    
 }
 
@@ -123,6 +151,18 @@
         </div>
         <div class="col-6 " style="text-align:center; height:100px" > 
             <a id="btnNextPage" class="btn "  aria-label="Settings"><i title="Next" class="fa fa-solid fa-angle-right" style="font-size:100px"></i></a>
+        </div>
+    </div>
+    
+    
+    <div id="waveform"></div>
+    
+    <div class="row" style="justify-content:center">
+        <div class="col-1">
+            <a id="btnPlay" style="text-align:center; height:auto" ><i title="play" class="fa fa-solid fa-play" style="font-size:30px"></i></a>
+        </div>
+        <div class="col-1">
+            <a id="btnStop" style="text-align:center; height:auto" ><i title="play" class="fa fa-solid fa-stop" style="font-size:30px"></i></a>
         </div>
     </div>
     

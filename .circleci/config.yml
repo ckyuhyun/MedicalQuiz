@@ -34,4 +34,7 @@ workflows:
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - build-and-test
-      - docker-hub-creds
+      - build:
+          context:
+            - build-env-vars
+            - docker-hub-creds

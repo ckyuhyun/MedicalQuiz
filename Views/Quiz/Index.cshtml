@@ -68,6 +68,20 @@
             else 
                 new_width = 0
 
+            
+            $.ajax({
+                url: "@Url.Action("GetQuiz")", 
+                type: 'Post',
+                dataType: 'json',
+                data: {
+                    id : get_currentprogressBar_value()
+                },
+                success: function (quizContent)
+                {   
+                    UpdatePage(quizContent)
+                }
+            })
+
            updateProgressBar(new_width)
         })
 
@@ -79,9 +93,47 @@
             else 
                 new_width = 0
 
+            $.ajax({
+                url: "@Url.Action("GetQuiz")", 
+                type: 'Post',
+                dataType: 'json',
+                data: {
+                    id : get_currentprogressBar_value()
+                },
+                success: function (quizContent)
+                {   
+                    UpdatePage(quizContent)
+                }
+            })
+
             updateProgressBar(new_width)
 
         })
+
+        function UpdatePage(quizContent)
+        {
+            console.log(quizContent.type)
+            if(quizContent.type == 0)
+            {
+                $('#ref1Img').show()
+                $('#ref2Img').show()
+                $('#waveform').hide()
+                $('#btnPlay').hide()
+                $('#btnStop').hide()
+                
+                $('#ref1Img')[0].src = String(quizContent.sampleImageInfo.imageSample1FileName)
+                $('#ref2Img')[0].src = String(quizContent.sampleImageInfo.imageSample2FileName)
+                        
+            }else if(quizContent.type == 1)
+            {
+                $('#ref1Img').hide()
+                $('#ref2Img').hide()
+                $('#waveform').show()
+                $('#btnPlay').show()
+                $('#btnStop').show()
+                wavesurfer.load(quizContent.sampleAudioInfo.audioFileFile);
+            }
+        }
 
         function get_currentprogressBar_value()
         {
@@ -103,7 +155,7 @@
             progressColor: 'red'
         });
 
-        wavesurfer.load('../audio/heartbeat-01a.mp3');
+        
 
         $('#btnPlay').on('click', function () {
             wavesurfer.play();
@@ -121,16 +173,16 @@
 
 <div class="row" style="margin-bottom:50px">
     <div class="progress" style="height:50px; width:100%">
-      <div class="progress-bar" id="progressBar" title="Progress" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">55%</div>
+      <div class="progress-bar" id="progressBar" title="Progress" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
     </div>
 </div>
 
 <div class="row">
     <div class="col-6">
-        <img src="img/ref1.PNG" id="ref1Img" style="width:100%"/>
+        <img src="" id="ref1Img" style="width:100%"/>
     </div>
     <div class="col-6">
-        <img src="img/ref2.PNG" id="ref2Img" style="width:100%"/>
+        <img src="" id="ref2Img" style="width:100%"/>
     </div>
 </div>
     <div class="row" style="justify-content:center">

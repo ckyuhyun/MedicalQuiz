@@ -1,4 +1,5 @@
 ﻿using MedicalQuiz.Models;
+using MedicalQuiz.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,10 +13,13 @@ namespace MedicalQuiz.Controllers
     public class QuizController : Controller
     {
         private readonly ILogger<QuizController> _logger;
+        private readonly IQuizHelper QuizHelper;
 
-        public QuizController(ILogger<QuizController> logger)
+        public QuizController(ILogger<QuizController> logger,
+                              IQuizHelper quizHelper)
         {
-            _logger = logger;
+            _logger     = logger;
+            QuizHelper  = quizHelper;
         }
 
         public IActionResult Index()
@@ -29,9 +33,16 @@ namespace MedicalQuiz.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetQuiz(int id)
+        public JsonResult GetQuiz(int id)
         {
-            return Ok();
+            var _pageId = id;
+            if (_pageId < 0)
+                _pageId = 0;
+            else if (_pageId >= QuizHelper.GetQuizCount())
+                _pageId = QuizHelper.GetQuizCount()-1;
+
+            var content = QuizHelper.GetQuiz(_pageId);
+            return Json(content);
         }
 
         public IActionResult Submit(int id)

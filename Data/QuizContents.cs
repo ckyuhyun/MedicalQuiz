@@ -20,8 +20,9 @@ namespace MedicalQuiz.Data
         {
             if (!QuizData.Any())
             {
-                QuizData.Add(AddImageOnlyQuizContent("ref1.PNG", "ref2.PNG", 0));
+                QuizData.Add(AddImageComparisonQuizContent("ref1.PNG", "ref2.PNG", 0));
                 QuizData.Add(AddAudioOnlyQuizContent("heartbeat-01a.mp3"));
+                QuizData.Add(AddImagePositionPickQuizContent("ref1_ref.PNG", 452,261, 548,380));
             }
         }
 
@@ -35,20 +36,21 @@ namespace MedicalQuiz.Data
             return JsonConvert.SerializeObject(QuizData);
         }
 
-        private QuizModel AddImageOnlyQuizContent(string srcImage1FileName, string srcImage2FileName, int answerIndex)
+        private QuizModel AddImageComparisonQuizContent(string srcImage1FileName, string srcImage2FileName, int answerIndex)
         {
             return new QuizModel
             {
                 QuizId = GetQuizId(),
-                Type = QuizType.ImageOnly,
-                SampleImageInfo =  new ImageInfo
+                Type = QuizType.ImageComparison,
+                SampleImageInfo =  new Images
                 {
-                    ImageSample1FileName    = $"img/{srcImage1FileName}",
-                    ImageSample2FileName    = $"img/{srcImage2FileName}",
-                    AnswerImageIndex        = answerIndex
+                    ImageSample1        = GetImageInfo($"img/{srcImage1FileName}"),
+                    ImageSample2        = GetImageInfo($"img/{srcImage2FileName}"),
+                    AnswerImageIndex    = answerIndex
                 }
             };
         }
+
 
         private QuizModel AddAudioOnlyQuizContent(string srcAudioFileName)
         {
@@ -62,6 +64,32 @@ namespace MedicalQuiz.Data
                 }
             };
         }
+
+        private QuizModel AddImagePositionPickQuizContent(string srcImage1FileName, int startX, int startY, int endX, int endY)
+        {
+            return new QuizModel
+            {
+                QuizId = GetQuizId(),
+                Type = QuizType.ImagePosSelection,
+                SampleImageInfo = new Images
+                {
+                    ImageSample1 = GetImageInfo($"img/{srcImage1FileName}", startX, startY, endX, endY)
+                }
+            };
+        }
+
+        private ImageInfo GetImageInfo(string fileName, int startX = 0, int startY = 0, int endX = 0, int endY = 0)
+        {
+            return new ImageInfo
+            {
+                FileName = fileName,
+                StartX = startX,
+                StartY = startY,
+                EndX = endX,
+                EndY = endY
+            };
+        }
+
         private int GetQuizId()
         {
             return QuizData.Count();

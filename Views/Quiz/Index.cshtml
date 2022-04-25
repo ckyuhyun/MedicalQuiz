@@ -1,4 +1,6 @@
-﻿@{
+﻿@using MedicalQuiz.Data
+
+@{
     ViewData["Title"] = "Quiz";
 }
 
@@ -22,15 +24,22 @@
         $("#ref1Img").on('click', function(e)
         {
             e.preventDefault()
-            $("#ref1Img").css('width', '120%')
-            $("#ref2Img").hide()
+            if(sessionStorage.getItem("QuizType") === "0")
+            {
+                $("#ref1Img").css('width', '120%')
+                $("#ref2Img").hide()
+            }
+            
         })
         
         $("#ref2Img").on('click', function(e)
         {
             e.preventDefault()
-            $("#ref2Img").css('width', '120%')
-            $("#ref1Img").hide()
+            if(sessionStorage.getItem("QuizType") === "0")
+            {
+                $("#ref2Img").css('width', '120%')
+                $("#ref1Img").hide()
+            }
         })
 
         $("#btnReset").on('click', function(e)
@@ -68,13 +77,14 @@
             else 
                 new_width = 0
 
+            updateProgressBar(new_width)
             
             $.ajax({
                 url: "@Url.Action("GetQuiz")", 
                 type: 'Post',
                 dataType: 'json',
                 data: {
-                    id : get_currentprogressBar_value()
+                    id : get_currentprogressBar_value() -1
                 },
                 success: function (quizContent)
                 {   
@@ -82,7 +92,7 @@
                 }
             })
 
-           updateProgressBar(new_width)
+           
         })
 
         $('#btnNextPage').on('click', function(e){
@@ -92,27 +102,52 @@
                 new_width = parseInt(current_width) + 1
             else 
                 new_width = 0
+            
+            updateProgressBar(new_width)    
 
             $.ajax({
                 url: "@Url.Action("GetQuiz")", 
                 type: 'Post',
                 dataType: 'json',
                 data: {
-                    id : get_currentprogressBar_value()
+                    id : get_currentprogressBar_value() -1
                 },
                 success: function (quizContent)
                 {   
                     UpdatePage(quizContent)
                 }
             })
-
-            updateProgressBar(new_width)
-
         })
 
+        function ShowWelComePage()
+        {
+            $('#welcomePage').show()
+            $('#ref1Img').hide()
+            $('#ref2Img').hide()
+            $('#waveform').hide()
+            $('#btnPlay').hide()
+            $('#btnStop').hide()
+            $('#btnReset').hide()
+            $('#btnHit').hide()
+        }
+        function HideWelComePage()
+        {
+            $('#welcomePage').hide()
+            $('#ref1Img').hide()
+            $('#ref2Img').hide()
+            $('#waveform').hide()
+            $('#btnPlay').hide()
+            $('#btnStop').hide()
+            $('#btnReset').hide()
+        }
+
+        var image_selection_boundary_startX
+        var image_selection_boundary_startY
+        var image_selection_boundary_endX
+        var image_selection_boundary_endY
         function UpdatePage(quizContent)
         {
-            console.log(quizContent.type)
+            $("#ResultPanel").html('')
             if(quizContent.type == 0)
             {
                 $('#ref1Img').show()
@@ -120,9 +155,13 @@
                 $('#waveform').hide()
                 $('#btnPlay').hide()
                 $('#btnStop').hide()
+                $('#btnReset').show()
+                $('#btnHit').show()
                 
-                $('#ref1Img')[0].src = String(quizContent.sampleImageInfo.imageSample1FileName)
-                $('#ref2Img')[0].src = String(quizContent.sampleImageInfo.imageSample2FileName)
+                $('#ref1Img')[0].src = String(quizContent.sampleImageInfo.imageSample1.fileName)
+                $('#ref2Img')[0].src = String(quizContent.sampleImageInfo.imageSample2.fileName)
+
+                sessionStorage.setItem("QuizType", "0");
                         
             }else if(quizContent.type == 1)
             {
@@ -131,7 +170,35 @@
                 $('#waveform').show()
                 $('#btnPlay').show()
                 $('#btnStop').show()
+                $('#btnReset').hide()
+                $('#btnHit').hide()
                 wavesurfer.load(quizContent.sampleAudioInfo.audioFileFile);
+
+                sessionStorage.setItem("QuizType", "1");
+            }
+            else if(quizContent.type == 2)
+            {
+
+            }
+            else if(quizContent.type == 3)
+            {
+                $('#ref1Img').show()
+                $('#ref2Img').hide()
+                $('#waveform').hide()
+                $('#btnPlay').hide()
+                $('#btnStop').hide()
+                $('#btnReset').hide()
+                $('#btnHit').hide()
+
+                $("#ref1Img").css('width', '150%')
+                $('#ref1Img')[0].src = String(quizContent.sampleImageInfo.imageSample1.fileName)
+                image_selection_boundary_startX = quizContent.sampleImageInfo.imageSample1.startX
+                image_selection_boundary_startY = quizContent.sampleImageInfo.imageSample1.startY
+                image_selection_boundary_endX = quizContent.sampleImageInfo.imageSample1.endX
+                image_selection_boundary_endY = quizContent.sampleImageInfo.imageSample1.endY
+             
+
+                sessionStorage.setItem("QuizType", "3");
             }
         }
 
@@ -140,8 +207,17 @@
             return $('.progress-bar').attr('aria-valuenow')
         }
 
+        window.addEventListener('load', (event) => {
+            ShowWelComePage()
+        });
+
         function updateProgressBar(value)
         {
+            if(value == 0 )
+                ShowWelComePage()
+            else
+                HideWelComePage()
+
             $("#progressBar").html(value+'%')
             $("#progressBar")[0].value = value
             $('.progress-bar').attr('aria-valuenow', value)
@@ -155,7 +231,41 @@
             progressColor: 'red'
         });
 
-        
+        function clickImage(e) {
+            quizType = sessionStorage.getItem("QuizType");
+
+            if( quizType !== "3")
+            {
+                image_selection_boundary_startX = 0
+                image_selection_boundary_startY = 0 
+                image_selection_boundary_endX = window.innerWidth;
+                image_selection_boundary_endY = window.innerHeight;
+            }else
+            {
+                startX = image_selection_boundary_startX + $("#ref1Img")[0].getBoundingClientRect().left 
+                endX = image_selection_boundary_endX + $("#ref1Img")[0].getBoundingClientRect().left
+                startY = image_selection_boundary_startY + $("#ref1Img")[0].getBoundingClientRect().top
+                endY = image_selection_boundary_endY + $("#ref1Img")[0].getBoundingClientRect().top
+                                
+                //console.log('start X :' + startX )
+                //console.log('end X :' + endX )
+                //console.log('start Y :' + startY )
+                //console.log('end Y :' + endY )
+                //console.log('click stat X :' + e.clientX )
+                //console.log('click stat Y :' + e.clientY )
+
+                if(e.clientX >= startX && e.clientX <= endX &&  e.clientY >= startY && e.clientY <= endY)
+                {
+                    $("#ResultPanel").html('')
+                    $("#ResultPanel").html('Hit')
+                }else{
+                    $("#ResultPanel").html('')
+                }
+            }
+        }
+
+
+        document.addEventListener("click", clickImage);
 
         $('#btnPlay').on('click', function () {
             wavesurfer.play();
@@ -170,21 +280,32 @@
 
 
 <body>
+    <div class="row" style="margin-bottom:50px">
+        <div class="progress" style="height:50px; width:100%">
+          <div class="progress-bar" id="progressBar" title="Progress" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+        </div>
+    </div>
+     <div class="row" style="justify-content:center">
+        <div class="col-6" style="text-align:center; height:auto">
+            <a id="btnPrevPage" ><i title="Previous" class="fa fa-solid fa-angle-left" style="font-size:100px" aria-hidden="true"></i></a>
+        </div>
+        <div class="col-6 " style="text-align:center; height:100px" > 
+            <a id="btnNextPage" class="btn "  aria-label="Settings"><i title="Next" class="fa fa-solid fa-angle-right" style="font-size:100px"></i></a>
+        </div>
+    </div>
 
-<div class="row" style="margin-bottom:50px">
-    <div class="progress" style="height:50px; width:100%">
-      <div class="progress-bar" id="progressBar" title="Progress" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+    <div class="row" id="welcomePage" style="margin-top:100px; margin-bottom:100px; justify-content:center;" >
+        <h1>Welcome to Quiz</h1>
     </div>
-</div>
+    <div class="row">    
+        <div class="col-6">
+            <img src="" id="ref1Img" style="width:100%"/>
+        </div>
+        <div class="col-6">
+            <img src="" id="ref2Img" style="width:100%"/>
+        </div>
+    </div>
 
-<div class="row">
-    <div class="col-6">
-        <img src="" id="ref1Img" style="width:100%"/>
-    </div>
-    <div class="col-6">
-        <img src="" id="ref2Img" style="width:100%"/>
-    </div>
-</div>
     <div class="row" style="justify-content:center">
         <p id="ResultPanel" style="background-color:powderblue; font-size:300%;"></p>
     </div>
@@ -197,14 +318,7 @@
         </div>
     </div>
     
-    <div class="row" style="justify-content:center">
-        <div class="col-6" style="text-align:center; height:auto">
-            <a id="btnPrevPage" ><i title="Previous" class="fa fa-solid fa-angle-left" style="font-size:100px" aria-hidden="true"></i></a>
-        </div>
-        <div class="col-6 " style="text-align:center; height:100px" > 
-            <a id="btnNextPage" class="btn "  aria-label="Settings"><i title="Next" class="fa fa-solid fa-angle-right" style="font-size:100px"></i></a>
-        </div>
-    </div>
+   
     
     
     <div id="waveform"></div>

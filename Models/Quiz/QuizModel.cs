@@ -6,16 +6,25 @@ namespace MedicalQuiz.Models
     {
         public int QuizId { get; set; }
         public QuizType Type { get; set; }
-        public ImageInfo SampleImageInfo {get; set;}
+        public Images SampleImageInfo {get; set;}
         public AudioInfo SampleAudioInfo {get; set;}
         public TestResultType Result { get; set; }
     }
 
+    public class Images
+    {
+        public ImageInfo ImageSample1 { get; set; }
+        public ImageInfo ImageSample2 { get; set; }
+        public int AnswerImageIndex { get; set; }
+    }
+
     public class ImageInfo
     {
-        public string ImageSample1FileName { get; set; }
-        public string ImageSample2FileName { get; set; }
-        public int AnswerImageIndex { get; set; }
+        public string FileName { get; set; }
+        public int StartX { get; set; }
+        public int StartY { get; set; }
+        public int EndX { get; set; }
+        public int EndY { get; set; }
     }
 
     public class AudioInfo

@@ -2,8 +2,9 @@
 {
     public enum QuizType
     {
-        ImageOnly,
+        ImageComparison = 0,
         AudioOnly,
         ImageAndAudio,
+        ImagePosSelection
     }
 }
